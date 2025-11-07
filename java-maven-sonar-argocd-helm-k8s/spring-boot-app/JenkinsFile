@@ -45,25 +45,33 @@ pipeline {
         }
       }
     }
-    stage('Update Deployment File') {
-        environment {
-            GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
-            GIT_USER_NAME = "phemy0"
-            GIT_EMAIL = "phemyolowo@gmail.com"
-        }
-        steps {
-            withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
-                sh '''
-                    cd java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests
-                    git config user.email "${GIT_EMAIL}"
-                    git config user.name "${GIT_USER_NAME}"
-                    sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git add java-maven-sonar-argocd-helm-k8s/spring-boot-app-manifests/deployment.yml
-                    git commit -m "Update deployment image to version ${BUILD_NUMBER}"
-                    git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
-                '''
-            }
-        }
+    
+  }stage('Update Deployment File') {
+  environment {
+    GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
+    GIT_USER_NAME = "phemy0"
+    GIT_EMAIL = "phemyolowo@gmail.com"
+  }
+  steps {
+    withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
+      sh '''
+        # Navigate to the Git repo root (assuming Jenkins cloned it here)
+        cd java-maven-sonar-argocd-helm-k8s
+
+        # Configure Git user
+        git config user.email "${GIT_EMAIL}"
+        git config user.name "${GIT_USER_NAME}"
+
+        # Update deployment file
+        sed -i "s/replaceImageTag/${BUILD_NUMBER}/g" spring-boot-app-manifests/deployment.yml
+
+        # Commit and push changes
+        git add spring-boot-app-manifests/deployment.yml
+        git commit -m "Update deployment image to version ${BUILD_NUMBER}"
+        git push https://${GITHUB_TOKEN}@github.com/${GIT_USER_NAME}/${GIT_REPO_NAME} HEAD:main
+      '''
     }
   }
+}
+
 }
