@@ -49,7 +49,7 @@ pipeline {
         environment {
             GIT_REPO_NAME = "Jenkins-Zero-To-Hero"
             GIT_USER_NAME = "phemy0"
-            GIT_EMAIL = phemyolowo@gmail.com
+            GIT_EMAIL = "phemyolowo@gmail.com"
         }
         steps {
             withCredentials([string(credentialsId: 'github', variable: 'GITHUB_TOKEN')]) {
