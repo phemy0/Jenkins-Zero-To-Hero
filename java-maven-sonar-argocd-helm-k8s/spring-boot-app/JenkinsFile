@@ -12,13 +12,22 @@ pipeline {
         //git branch: 'main', url: 'https://github.com/iam-veeramalla/Jenkins-Zero-To-Hero.git'
       }
     }
-    stage('Build and Test') {
-      steps {
-        sh 'ls -ltr'
-        // build the project and create a JAR file
-        sh 'cd java-maven-sonar-argocd-helm-k8s/spring-boot-app && mvn clean package'
-      }
+    stage('Clean Local Cache & Build') {
+    steps {
+        // Optional: Remove problematic cached dependencies
+        sh '''
+            echo "Removing cached Jakarta Cache and Ehcache artifacts"
+            rm -rf ~/.m2/repository/jakarta/cache
+            rm -rf ~/.m2/repository/org/ehcache
+        '''
+
+        // Purge local Maven repository for this project and re-download dependencies
+        sh 'mvn dependency:purge-local-repository -DreResolve=true'
+
+        // Clean and build the project, forcing updates
+        sh 'mvn clean -U package -DskipTests'
     }
+}
     stage('Static Code Analysis') {
       environment {
         SONAR_URL = "http://34.201.116.83:9000"
